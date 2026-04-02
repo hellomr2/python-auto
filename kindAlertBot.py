@@ -1,17 +1,16 @@
 import time
 import re
 import asyncio
-from datetime import datetime
+import os
+from datetime import datetime, date
 
+import holidays
 import requests
 import telegram
 from bs4 import BeautifulSoup
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-
-import os
 
 
 # ==========================
@@ -21,6 +20,18 @@ TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 KIND_URL = "https://kind.krx.co.kr/listinvstg/pubofrschdl.do?method=searchPubofrScholMain"
+EVENT_TYPES = ["상장", "청약", "수요예측", "IR", "납입"]
+
+DEFAULT_38_INFO = {
+    "competition": 0,
+    "float": 0,
+    "lockup": 0,
+    "offer_price": 0,
+    "band_low": 0,
+    "band_high": 0,
+    "price_position": "미확인",
+    "brokers": []
+}
 
 
 # ==========================
@@ -51,8 +62,8 @@ def fetch_calendar():
 # ==========================
 def parse_calendar(raw):
     parsed = []
-    date = None
-    event = None
+    current_date = None
+    current_event = None
 
     for row in raw:
         for item in row:
@@ -62,17 +73,17 @@ def parse_calendar(raw):
                 continue
 
             if item.isdigit():
-                date = int(item)
+                current_date = int(item)
                 continue
 
-            if item in ["상장", "청약", "수요예측", "IR", "납입"]:
-                event = item
+            if item in EVENT_TYPES:
+                current_event = item
                 continue
 
-            if date and event:
+            if current_date and current_event:
                 parsed.append({
-                    "date": date,
-                    "event": event,
+                    "date": current_date,
+                    "event": current_event,
                     "company": item.replace(" ", "")
                 })
 
@@ -80,18 +91,11 @@ def parse_calendar(raw):
 
 
 def filter_today(parsed, test_day=None):
-    if test_day:
-        today = test_day
-    else:
-        today = int(datetime.now().strftime("%d"))
+    today = test_day if test_day else int(datetime.now().strftime("%d"))
 
-    result = [
-        x for x in parsed
-        if x["date"] == today
-    ]
+    result = [x for x in parsed if x["date"] == today]
 
     print(f"[DEBUG] 선택된 날짜: {today}, 개수: {len(result)}")
-
     return result
 
 
@@ -168,17 +172,17 @@ def parse_38_detail(url):
 
                 if "유통가능물량" in row_text:
                     for c in cols:
-                        m = re.search(r"([\d\.]+)\s*%", c)
-                        if m:
-                            val = float(m.group(1))
+                        match = re.search(r"([\d\.]+)\s*%", c)
+                        if match:
+                            val = float(match.group(1))
                             if val <= 100:
                                 float_ratio = val
 
                 if "의무보유" in row_text or "확약" in row_text:
                     for c in cols:
-                        m = re.search(r"([\d\.]+)\s*%", c)
-                        if m:
-                            val = float(m.group(1))
+                        match = re.search(r"([\d\.]+)\s*%", c)
+                        if match:
+                            val = float(match.group(1))
                             if val <= 100:
                                 lockup = val
 
@@ -203,6 +207,29 @@ def parse_38_detail(url):
 
 
 # ==========================
+# 증권사 추출
+# ==========================
+def extract_underwriters(text):
+    """
+    38 텍스트에서 증권사 추출
+    """
+    match = re.search(r"1\s+(.+)$", text)
+    if not match:
+        return []
+
+    tail = match.group(1)
+    parts = tail.split(",")
+
+    brokers = []
+    for part in parts:
+        part = part.strip()
+        if "증권" in part or "투자" in part:
+            brokers.append(part)
+
+    return brokers
+
+
+# ==========================
 # 38 메인 파싱
 # ==========================
 def get_38_info(company):
@@ -221,17 +248,14 @@ def get_38_info(company):
                 continue
 
             name = cols[0].get_text(strip=True).replace(" ", "")
-
             if name != company:
                 continue
 
             text = " ".join([c.get_text(strip=True) for c in cols])
             print(f"[DEBUG 정확매칭] {text}")
 
-            # 🔥 증권사 추출 추가
             brokers = extract_underwriters(text)
 
-            # URL 처리
             link_tag = cols[0].find("a")
             detail_url = None
 
@@ -248,9 +272,9 @@ def get_38_info(company):
             price_info = parse_price_info_from_text(text)
 
             competition = 0.0
-            m = re.search(r"(\d+(?:\.\d+)?)\s*(?::|대)\s*1", text)
-            if m:
-                competition = float(m.group(1))
+            match = re.search(r"(\d+(?:\.\d+)?)\s*(?::|대)\s*1", text)
+            if match:
+                competition = float(match.group(1))
 
             detail_info = {"float": 50.0, "lockup": 0.0}
 
@@ -279,56 +303,6 @@ def get_38_info(company):
 # ==========================
 # 점수 + 예측
 # ==========================
-def analyze_ipo(info):
-    score = 0
-
-    comp = info.get("competition", 0)
-    lock = info.get("lockup", 0)
-    float_ratio = info.get("float", 50)
-    pos = info.get("price_position", "미확인")
-
-    score += min(comp / 50, 40)
-    score += lock * 0.3
-    score -= float_ratio * 0.3
-
-    if pos == "상단":
-        score += 10
-    elif pos == "초과":
-        score += 15
-
-    score = round(score, 1)
-
-    if score >= 70:
-        tt, db, fail = 75, 20, 5
-    elif score >= 50:
-        tt, db, fail = 60, 30, 10
-    else:
-        tt, db, fail = 20, 40, 40
-
-    ratio = 1.3
-    if comp >= 500:
-        ratio = 1.6
-    if comp >= 1000:
-        ratio = 1.9
-    if comp >= 1500:
-        ratio = 2.05
-
-    if pos == "상단":
-        ratio += 0.05
-
-    ratio = min(ratio, 2.3)
-    expected_return = int((ratio - 1) * 100)
-
-    return {
-        "score": score,
-        "ttasang": tt,
-        "double": db,
-        "fail": fail,
-        "open_ratio": round(ratio, 2),
-        "expected_return": expected_return
-    }
-
-
 def calc_score(info):
     comp = info.get("competition", 0)
     lock = info.get("lockup", 0)
@@ -400,33 +374,6 @@ def analyze_ipo(info):
     }
 
 
-def extract_underwriters(text):
-    """
-    38 텍스트에서 증권사 추출
-    """
-
-    # 경쟁률 뒤 문자열 가져오기
-    m = re.search(r"1\s+(.+)$", text)
-    if not m:
-        return []
-
-    tail = m.group(1)
-
-    # 쉼표 기준 분리
-    parts = tail.split(",")
-
-    brokers = []
-
-    for p in parts:
-        p = p.strip()
-
-        # 증권사 키워드 포함만 필터
-        if "증권" in p or "투자" in p:
-            brokers.append(p)
-
-    return brokers
-
-
 # ==========================
 # 메시지 생성
 # ==========================
@@ -451,18 +398,8 @@ def build_message(data):
             continue
 
         info = get_38_info(name)
-        # 🔥 fallback (핵심)
         if not info:
-            info = {
-                "competition": 0,
-                "float": 0,
-                "lockup": 0,
-                "offer_price": 0,
-                "band_low": 0,
-                "band_high": 0,
-                "price_position": "미확인",
-                "brokers": []
-            }
+            info = DEFAULT_38_INFO.copy()
 
         result = analyze_ipo(info)
 
@@ -472,14 +409,14 @@ def build_message(data):
             subscriptions.append((name, info, result))
 
     # ==========================
-    # 🔥 청약
+    # 청약
     # ==========================
     if subscriptions:
         msg += "📝 청약 종목\n"
-        for name, info, r in subscriptions:
+        for name, info, result in subscriptions:
             msg += f"📌 {name}\n"
-            msg += f"- 참여 판단: {'YES' if r['score'] >= 60 else 'NO'}\n"
-            msg += f"- 점수: {r['score']}\n"
+            msg += f"- 참여 판단: {'YES' if result['score'] >= 60 else 'NO'}\n"
+            msg += f"- 점수: {result['score']}\n"
             msg += f"- 경쟁률(예상): {info['competition']}\n"
 
             if info.get("brokers"):
@@ -488,14 +425,14 @@ def build_message(data):
             msg += "\n"
 
     # ==========================
-    # 🔥 상장
+    # 상장
     # ==========================
     if listings:
         msg += "📈 상장 종목\n"
-        for name, info, r in listings:
+        for name, info, result in listings:
             msg += f"📌 {name}\n"
-            msg += f"- 따상: {r['ttasang']}%\n"
-            msg += f"- 예상 수익: +{r['expected_return']}%\n"
+            msg += f"- 따상: {result['ttasang']}%\n"
+            msg += f"- 예상 수익: +{result['expected_return']}%\n"
             msg += f"- 공모가: {info['offer_price']:,}원\n"
             msg += f"- 경쟁률: {info['competition']}\n"
             msg += f"- 유통: {info['float']}% / 확약: {info['lockup']}%\n"
@@ -525,15 +462,30 @@ async def send(msg):
 
 
 # ==========================
+# 휴장일 체크
+# ==========================
+def is_market_holiday():
+    kr_holidays = holidays.KR()
+    today = date.today()
+
+    # 주말 포함 자동 체크
+    return today in kr_holidays or today.weekday() >= 5
+
+
+# ==========================
 # 실행
 # ==========================
 def main():
+    if is_market_holiday():
+        print("휴장일이라 실행 안함")
+        return
+
     raw = fetch_calendar()
     parsed = parse_calendar(raw)
-    today = filter_today(parsed)
-    #today = filter_today(parsed, test_day=28)
+    today_data = filter_today(parsed)
+    # today_data = filter_today(parsed, test_day=28)
 
-    msg = build_message(today)
+    msg = build_message(today_data)
 
     print(msg)
     asyncio.run(send(msg))
