@@ -232,6 +232,18 @@ def extract_underwriters(text):
 # ==========================
 # 38 메인 파싱
 # ==========================
+
+cache_38 = {}
+
+def get_38_info_cached(company):
+    if company in cache_38:
+        return cache_38[company]
+
+    result = get_38_info(company)
+    cache_38[company] = result
+    return result
+
+ 
 def get_38_info(company):
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
@@ -377,6 +389,28 @@ def analyze_ipo(info):
 # ==========================
 # 메시지 생성
 # ==========================
+
+def format_company_block(name, info, result, is_listing=False):
+    line = f"📌 {name}\n"
+    line += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+
+    if is_listing:
+        line += f"📈 예상 수익: +{result['expected_return']}%\n"
+        line += f"🎯 따상 확률: {result['ttasang']}%\n"
+    else:
+        decision = "YES" if result['score'] >= 60 else "NO"
+        line += f"🔥 참여: {decision} ({result['score']}점)\n"
+
+    line += f"📊 경쟁률: {info['competition']}\n"
+    line += f"💰 공모가: {info['offer_price']:,}원\n"
+    line += f"📦 유통 {info['float']}% / 확약 {info['lockup']}%\n"
+
+    if info.get("brokers"):
+        line += f"🏦 {', '.join(info['brokers'])}\n"
+
+    return line + "\n\n"
+
+
 def build_message(data):
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -393,11 +427,7 @@ def build_message(data):
         name = item["company"]
         event = item["event"]
 
-        if "스팩" in name:
-            spac.append(name)
-            continue
-
-        info = get_38_info(name)
+        info = get_38_info_cached(name)
         if not info:
             info = DEFAULT_38_INFO.copy()
 
@@ -412,43 +442,17 @@ def build_message(data):
     # 청약
     # ==========================
     if subscriptions:
-        msg += "📝 청약 종목\n"
+        msg += "📝 청약 종목\n========================================\n"
         for name, info, result in subscriptions:
-            msg += f"📌 {name}\n"
-            msg += f"- 참여 판단: {'YES' if result['score'] >= 60 else 'NO'}\n"
-            msg += f"- 점수: {result['score']}\n"
-            msg += f"- 경쟁률(예상): {info['competition']}\n"
-
-            if info.get("brokers"):
-                msg += f"- 증권사: {', '.join(info['brokers'])}\n"
-
-            msg += "\n"
+            msg += format_company_block(name, info, result, is_listing=False) + "\n"
 
     # ==========================
     # 상장
     # ==========================
     if listings:
-        msg += "📈 상장 종목\n"
+        msg += "📈 상장 종목\n========================================\n"
         for name, info, result in listings:
-            msg += f"📌 {name}\n"
-            msg += f"- 따상: {result['ttasang']}%\n"
-            msg += f"- 예상 수익: +{result['expected_return']}%\n"
-            msg += f"- 공모가: {info['offer_price']:,}원\n"
-            msg += f"- 경쟁률: {info['competition']}\n"
-            msg += f"- 유통: {info['float']}% / 확약: {info['lockup']}%\n"
-
-            if info.get("brokers"):
-                msg += f"- 증권사: {', '.join(info['brokers'])}\n"
-
-            msg += "\n"
-
-    # ==========================
-    # 스팩
-    # ==========================
-    if spac:
-        msg += "⚙️ 스팩\n"
-        for s in spac:
-            msg += f"- {s}\n"
+            msg += format_company_block(name, info, result, is_listing=False) + "\n"
 
     return msg.strip()
 
@@ -488,7 +492,7 @@ def main():
     msg = build_message(today_data)
 
     print(msg)
-    asyncio.run(send(msg))
+    #asyncio.run(send(msg))
 
 
 if __name__ == "__main__":
