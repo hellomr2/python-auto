@@ -33,6 +33,23 @@ DEFAULT_38_INFO = {
     "brokers": []
 }
 
+# ==========================
+# 전략 설정
+# ==========================
+TTASANG_THRESHOLD = 70   # 따상 유력 기준 (%)
+SCORE_THRESHOLD = 70     # 점수 기준 (옵션)
+USE_SCORE_BASED = False  # True면 score 기준 사용
+
+
+def is_ttasang_candidate(name, info, result):
+    if "스팩" in name:
+        return False
+
+    if USE_SCORE_BASED:
+        return result.get("score", 0) >= SCORE_THRESHOLD
+
+    return result.get("ttasang", 0) >= TTASANG_THRESHOLD
+
 
 # ==========================
 # Selenium 크롤링
@@ -229,6 +246,31 @@ def extract_underwriters(text):
     return brokers
 
 
+def normalize_spac_name(company):
+    """
+    KIND → 38 형식으로 변환
+    """
+    if "스팩" not in company:
+        return company
+
+    # 제 제거
+    name = company.replace("제", "")
+
+    # 숫자 추출
+    match = re.search(r"(\d+)", name)
+    if not match:
+        return name
+
+    number = match.group(1)
+
+    # 증권사 이름 추출
+    prefix = name.split(number)[0]
+    prefix = prefix.replace("호", "").replace("스팩", "")
+
+    # 38 스타일로 변환
+    return f"{prefix}스팩{number}호"
+
+
 # ==========================
 # 38 메인 파싱
 # ==========================
@@ -260,7 +302,9 @@ def get_38_info(company):
                 continue
 
             name = cols[0].get_text(strip=True).replace(" ", "")
-            if name != company:
+            target = normalize_spac_name(company)
+
+            if name != target:
                 continue
 
             text = " ".join([c.get_text(strip=True) for c in cols])
@@ -391,12 +435,15 @@ def analyze_ipo(info):
 # ==========================
 
 def format_company_block(name, info, result, is_listing=False):
-    line = f"📌 {name}\n"
+    tag = "📈 상장" if is_listing else "📝 청약"
+
+    line = f"{tag} | 📌 {name}\n"
     line += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
 
     if is_listing:
         line += f"📈 예상 수익: +{result['expected_return']}%\n"
         line += f"🎯 따상 확률: {result['ttasang']}%\n"
+        line += f"💡 매도전략: {get_sell_strategy(name, info, result)}\n"
     else:
         decision = "YES" if result['score'] >= 60 else "NO"
         line += f"🔥 참여: {decision} ({result['score']}점)\n"
@@ -411,6 +458,23 @@ def format_company_block(name, info, result, is_listing=False):
     return line + "\n\n"
 
 
+def get_sell_strategy(name, info, result):
+    comp = info.get("competition", 0)
+    lock = info.get("lockup", 0)
+    score = result.get("score", 0)
+
+    # 따상 유력
+    if is_ttasang_candidate(name, info, result) and "스팩" not in info:
+        return "따상 홀딩 (장초반 관망 후 +80% 이상 매도)"
+
+    # 표준
+    if score >= 50:
+        return "분할매도 (시초가 50% + 추가상승 매도)"
+
+    # 약한 종목
+    return "시초가 매도"
+
+
 def build_message(data):
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -422,6 +486,7 @@ def build_message(data):
     listings = []
     subscriptions = []
     spac = []
+    hot_list = []
 
     for item in data:
         name = item["company"]
@@ -433,11 +498,25 @@ def build_message(data):
 
         result = analyze_ipo(info)
 
+        if "스팩" not in name and is_ttasang_candidate(name, info, result):
+            hot_list.append((name, info, result, event))
+
         if event == "상장":
             listings.append((name, info, result))
         elif event == "청약":
             subscriptions.append((name, info, result))
 
+
+    if hot_list:
+        msg += "🚀🔥 오늘의 따상 유력\n"
+        msg += "========================================\n"
+
+        for name, info, result, event in hot_list:
+            tag = "📈" if event == "상장" else "📝"
+            msg += f"{tag} {name} (+{result['expected_return']}%)\n"
+
+        msg += "\n\n"
+    
     # ==========================
     # 청약
     # ==========================
@@ -452,7 +531,7 @@ def build_message(data):
     if listings:
         msg += "📈 상장 종목\n========================================\n"
         for name, info, result in listings:
-            msg += format_company_block(name, info, result, is_listing=False) + "\n"
+            msg += format_company_block(name, info, result, is_listing=True) + "\n"
 
     return msg.strip()
 
@@ -492,7 +571,7 @@ def main():
     msg = build_message(today_data)
 
     print(msg)
-    #asyncio.run(send(msg))
+    asyncio.run(send(msg))
 
 
 if __name__ == "__main__":
