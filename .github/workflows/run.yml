@@ -1,0 +1,35 @@
+name: IPO Bot
+
+on:
+  schedule:
+    - cron: "30 23 * * *"   # 한국 08:30
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Chrome 설치
+        uses: browser-actions/setup-chrome@v1
+
+      - name: ChromeDriver 설치
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: 라이브러리 설치
+        run: |
+          pip install requests beautifulsoup4 selenium python-telegram-bot
+
+      - name: 실행
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python kindAlertBot.py
