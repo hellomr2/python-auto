@@ -438,7 +438,7 @@ def format_company_block(name, info, result, is_listing=False):
     tag = "📈 상장" if is_listing else "📝 청약"
 
     line = f"{tag} | 📌 {name}\n"
-    line += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    line += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
 
     if is_listing:
         line += f"📈 예상 수익: +{result['expected_return']}%\n"
@@ -509,7 +509,7 @@ def build_message(data):
 
     if hot_list:
         msg += "🚀🔥 오늘의 따상 유력\n"
-        msg += "========================================\n"
+        msg += "==============================\n"
 
         for name, info, result, event in hot_list:
             tag = "📈" if event == "상장" else "📝"
@@ -521,7 +521,7 @@ def build_message(data):
     # 청약
     # ==========================
     if subscriptions:
-        msg += "📝 청약 종목\n========================================\n"
+        msg += "📝 청약 종목\n==============================\n"
         for name, info, result in subscriptions:
             msg += format_company_block(name, info, result, is_listing=False) + "\n"
 
@@ -529,7 +529,7 @@ def build_message(data):
     # 상장
     # ==========================
     if listings:
-        msg += "📈 상장 종목\n========================================\n"
+        msg += "📈 상장 종목\n==============================\n"
         for name, info, result in listings:
             msg += format_company_block(name, info, result, is_listing=True) + "\n"
 
