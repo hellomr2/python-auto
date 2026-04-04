@@ -4,3 +4,4 @@ selenium
 python-telegram-bot
 holidays
 lxml
+webdriver-manager
