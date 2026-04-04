@@ -3,6 +3,7 @@ import re
 import asyncio
 import os
 from datetime import datetime, date
+import pytz
 
 import holidays
 import requests
@@ -108,7 +109,8 @@ def parse_calendar(raw):
 
 
 def filter_today(parsed, test_day=None):
-    today = test_day if test_day else int(datetime.now().strftime("%d"))
+    kst = pytz.timezone('Asia/Seoul')
+    today = test_day if test_day else int(datetime.now(kst).strftime("%d"))
 
     result = [x for x in parsed if x["date"] == today]
 
@@ -476,7 +478,8 @@ def get_sell_strategy(name, info, result):
 
 
 def build_message(data):
-    today = datetime.now().strftime("%Y-%m-%d")
+    kst = pytz.timezone('Asia/Seoul')
+    today = datetime.now(kst).strftime("%Y-%m-%d")
 
     if not data:
         return f"📭 {today} 공모 일정 없음"
@@ -549,7 +552,8 @@ async def send(msg):
 # ==========================
 def is_market_holiday():
     kr_holidays = holidays.KR()
-    today = date.today()
+    kst = pytz.timezone('Asia/Seoul')
+    today = date.now(kst).today()
 
     # 주말 포함 자동 체크
     return today in kr_holidays or today.weekday() >= 5
