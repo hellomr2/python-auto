@@ -23,7 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 # 설정
 # ==========================
 
-TEST_DAY = 2  # 숫자 넣으면 해당 날짜로 테스트 (예: 28)
+TEST_DAY = None  # 숫자 넣으면 해당 날짜로 테스트 (예: 28)
 
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
