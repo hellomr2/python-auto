@@ -26,7 +26,7 @@ jobs:
 
       - name: 라이브러리 설치
         run: |
-          pip install requests beautifulsoup4 selenium python-telegram-bot holidays
+          pip install requests beautifulsoup4 selenium python-telegram-bot holidays pytz
 
       - name: 실행
         env:
