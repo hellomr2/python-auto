@@ -553,7 +553,7 @@ async def send(msg):
 def is_market_holiday():
     kr_holidays = holidays.KR()
     kst = pytz.timezone('Asia/Seoul')
-    today = date.now(kst).today()
+    today = datetime.now(kst).date()
 
     # 주말 포함 자동 체크
     return today in kr_holidays or today.weekday() >= 5
