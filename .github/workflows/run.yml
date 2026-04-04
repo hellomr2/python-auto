@@ -2,7 +2,7 @@ name: IPO Bot
 
 on:
   schedule:
-    - cron: "30 23 * * *"   # 한국 08:30
+    - cron: "0 23 * * *"   # 한국 08:30
   workflow_dispatch:
 
 jobs:
