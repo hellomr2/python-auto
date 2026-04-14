@@ -663,7 +663,7 @@ def build_message(data):
 
     if hot_list:
         msg += "🚀🔥 오늘의 따상 유력\n"
-        msg += ====================\n"
+        msg += "====================\n"
 
         for name, info, result, event in hot_list:
             tag = "📈" if event == "상장" else "📝"
