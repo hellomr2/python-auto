@@ -746,7 +746,7 @@ def main():
         msg = build_message(today_data)
         logging.info(msg)
 
-        asyncio.run(send(msg))
+        # asyncio.run(send(msg))
     except Exception as e:
         logging.exception("전체 실행 실패")
 
