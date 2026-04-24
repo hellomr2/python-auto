@@ -2,7 +2,7 @@ name: IPO Bot
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # 한국 08:30
+    - cron: "0 23 * * *"   # 한국 08:00 (UTC 기준)
   workflow_dispatch:
 
 env:
@@ -11,54 +11,84 @@ env:
 permissions:
   contents: write
 
+# 🔒 동시 실행 방지 (매우 중요)
+concurrency:
+  group: ipo-bot
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
-      # 🔥 1. checkout 수정 (push 가능)
-      - name: 코드 가져오기
+      # 1️⃣ 코드 checkout
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: true
 
-      # 🔥 2. pull 추가 (충돌 방지 핵심)
-      - name: Pull latest
-        run: git pull
-
-      - name: Python 설치
+      # 2️⃣ Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Chrome 설치
+      # 3️⃣ pip 캐시 (속도 개선)
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('**/requirements.txt') }}
+
+      # 4️⃣ Chrome + Driver (안정 조합)
+      - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: ChromeDriver 설치
-        uses: nanasess/setup-chromedriver@v2
-
-      - name: 라이브러리 설치
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install webdriver-manager
 
-      - name: 실행
+      # 5️⃣ 실행
+      - name: Run bot
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python ipo_alert_bot.py
-      
-      # 🔥 3. commit 단계 (기존 유지 + 약간 개선)
+
+      # 6️⃣ Git commit & push (🔥 핵심)
       - name: Commit history
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-      
-          git add weights.json history.json
-      
+
+          # 파일 없을 수도 있으니 안전 처리
+          git add weights.json history.json 2>/dev/null || true
+
           if git diff --cached --quiet; then
             echo "No changes"
-          else
-            git commit -m "update weights/history"
-            git pull --rebase
-            git push
+            exit 0
+          fi
+
+          git commit -m "update weights/history"
+
+          # 최신 상태 맞추기
+          git fetch origin
+          git rebase origin/main
+
+          # push retry (경쟁 상황 대응)
+          n=0
+          until [ $n -ge 3 ]
+          do
+            git push origin main && break
+            n=$((n+1))
+            echo "Push failed. Retry $n..."
+            git fetch origin
+            git rebase origin/main
+            sleep 2
+          done
+
+          if [ $n -ge 3 ]; then
+            echo "Push failed after retries"
+            exit 1
           fi
