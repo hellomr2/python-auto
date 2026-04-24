@@ -38,7 +38,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python kindAlertBot.py
+        run: python ipo_alert_bot.py
       
       - name: Commit history
         run: |
