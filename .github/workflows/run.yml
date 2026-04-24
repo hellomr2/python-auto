@@ -16,8 +16,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🔥 1. checkout 수정 (push 가능)
       - name: 코드 가져오기
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      # 🔥 2. pull 추가 (충돌 방지 핵심)
+      - name: Pull latest
+        run: git pull
 
       - name: Python 설치
         uses: actions/setup-python@v5
@@ -40,16 +47,18 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python ipo_alert_bot.py
       
+      # 🔥 3. commit 단계 (기존 유지 + 약간 개선)
       - name: Commit history
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
       
-          git add history.json
+          git add weights.json history.json
       
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "update history"
+            git commit -m "update weights/history"
+            git pull --rebase
             git push
           fi
