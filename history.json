@@ -11,5 +11,18 @@
     "float": 32.43,
     "offer_price": 6000,
     "actual": null
+  },
+  {
+    "date": "2026-04-28",
+    "name": "코스모로보틱스(구.엑소아틀레트아시아)",
+    "competition": 0.0,
+    "predicted": 59,
+    "ratio": 1.59,
+    "score": 38.1,
+    "ttasang": 10,
+    "lockup": 32.43,
+    "float": 32.43,
+    "offer_price": 6000,
+    "actual": null
   }
 ]
