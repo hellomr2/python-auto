@@ -37,5 +37,18 @@
     "float": 27.94,
     "offer_price": 5000,
     "actual": null
+  },
+  {
+    "date": "2026-05-05",
+    "name": "폴레드",
+    "competition": 0.0,
+    "predicted": 56,
+    "ratio": 1.57,
+    "score": 27.0,
+    "ttasang": 10,
+    "lockup": 27.94,
+    "float": 27.94,
+    "offer_price": 5000,
+    "actual": null
   }
 ]
