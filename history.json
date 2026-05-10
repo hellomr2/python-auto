@@ -63,5 +63,18 @@
     "float": 27.94,
     "offer_price": 5000,
     "actual": null
+  },
+  {
+    "date": "2026-05-11",
+    "name": "마키나락스",
+    "competition": 0.0,
+    "predicted": 34,
+    "ratio": 1.34,
+    "score": 17.5,
+    "ttasang": 10,
+    "lockup": 90.0,
+    "float": 90.0,
+    "offer_price": 0,
+    "actual": null
   }
 ]
