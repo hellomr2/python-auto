@@ -102,5 +102,18 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-05-23",
+    "name": "대신밸런스스팩20호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 90.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
