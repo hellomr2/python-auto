@@ -167,5 +167,18 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-05-27",
+    "name": "피스피스스튜디오",
+    "competition": 0.0,
+    "predicted": 64,
+    "ratio": 1.64,
+    "score": 30.2,
+    "ttasang": 10,
+    "lockup": 40.61,
+    "float": 40.61,
+    "offer_price": 21500,
+    "actual": null
   }
 ]
