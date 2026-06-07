@@ -853,7 +853,7 @@ def format_company_block(item):
     line += "━━━━━━━━━━━━━━━\n"
 
     if item["is_last_day"]:
-        line += "- 청약: 마지막날\n"
+        line += "🔥🔥 오늘 청약 마감 🔥🔥\n"
 
     if item["is_spike"]:
         line += (
@@ -897,7 +897,7 @@ def format_spac_block(item):
     line += "━━━━━━━━━━━━━━━\n"
 
     if item["is_last_day"]:
-        line += "- 청약: 마지막날\n"
+        line += "🔥🔥 오늘 청약 마감 🔥🔥\n"
 
     if info.get("competition", 0) == 0:
         line += "- 경쟁률: 데이터 없음\n"
@@ -959,12 +959,29 @@ def build_message(today_data, all_38):
     normal_items = sorted(
         [x for x in items if not x["is_spac"]],
         key=lambda x: (
+            x["is_last_day"],
             x["result"].get("ttasang", 0),
             x["info"].get("competition", 0),
             x["result"].get("score", 0)
         ),
         reverse=True
     )
+
+    last_day_items = [x for x in normal_items if x["is_last_day"]]
+
+    if last_day_items:
+        msg += "⏰ 오늘 청약 마감\n"
+        msg += "===============\n"
+
+        for item in last_day_items:
+            comp = item["info"].get("competition", 0)
+
+            if comp:
+                msg += f"🔥 {item['name']} ({comp}:1)\n"
+            else:
+                msg += f"🔥 {item['name']}\n"
+
+        msg += "\n"
 
     if normal_items:
         msg += "📝 청약 종목 - 따상 확률 높은 순\n"
@@ -1059,6 +1076,12 @@ def main():
         save_weights()
 
         all_38, today_data = fetch_38_all_and_today_events()
+
+        # 청약 종목 없으면 전송 안함
+        if not today_data:
+            logging.info("오늘 청약 종목 없음 - 전송 생략")
+            return
+
         msg = build_message(today_data, all_38)
 
         logging.info(msg)
