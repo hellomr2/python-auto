@@ -180,5 +180,18 @@
     "float": 40.61,
     "offer_price": 21500,
     "actual": null
+  },
+  {
+    "date": "2026-06-09",
+    "name": "메리츠스팩2호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
