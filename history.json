@@ -206,5 +206,31 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-06-18",
+    "name": "스트라드비젼",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": -2.8,
+    "ttasang": 10,
+    "lockup": 48.91,
+    "float": 48.91,
+    "offer_price": 12000,
+    "actual": null
+  },
+  {
+    "date": "2026-06-18",
+    "name": "져스텍",
+    "competition": 0.0,
+    "predicted": 57,
+    "ratio": 1.58,
+    "score": 27.3,
+    "ttasang": 10,
+    "lockup": 29.39,
+    "float": 29.39,
+    "offer_price": 12500,
+    "actual": null
   }
 ]
