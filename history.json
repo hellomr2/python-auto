@@ -232,5 +232,44 @@
     "float": 29.39,
     "offer_price": 12500,
     "actual": null
+  },
+  {
+    "date": "2026-06-19",
+    "name": "빅웨이브로보틱스",
+    "competition": 0.0,
+    "predicted": 8,
+    "ratio": 1.08,
+    "score": 27.5,
+    "ttasang": 10,
+    "lockup": 30.07,
+    "float": 30.07,
+    "offer_price": 0,
+    "actual": null
+  },
+  {
+    "date": "2026-06-19",
+    "name": "스트라드비젼",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": -2.8,
+    "ttasang": 10,
+    "lockup": 48.91,
+    "float": 48.91,
+    "offer_price": 12000,
+    "actual": null
+  },
+  {
+    "date": "2026-06-19",
+    "name": "져스텍",
+    "competition": 0.0,
+    "predicted": 57,
+    "ratio": 1.58,
+    "score": 27.3,
+    "ttasang": 10,
+    "lockup": 29.39,
+    "float": 29.39,
+    "offer_price": 12500,
+    "actual": null
   }
 ]
