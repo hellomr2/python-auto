@@ -323,5 +323,31 @@
     "float": 30.07,
     "offer_price": 0,
     "actual": null
+  },
+  {
+    "date": "2026-06-23",
+    "name": "매드업",
+    "competition": 0.0,
+    "predicted": 54,
+    "ratio": 1.55,
+    "score": 12.4,
+    "ttasang": 10,
+    "lockup": 24.81,
+    "float": 50.0,
+    "offer_price": 8000,
+    "actual": null
+  },
+  {
+    "date": "2026-06-23",
+    "name": "한국스팩16호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
