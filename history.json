@@ -349,5 +349,31 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-06-24",
+    "name": "레몬헬스케어",
+    "competition": 0.0,
+    "predicted": 59,
+    "ratio": 1.6,
+    "score": 38.3,
+    "ttasang": 10,
+    "lockup": 33.19,
+    "float": 33.19,
+    "offer_price": 10000,
+    "actual": null
+  },
+  {
+    "date": "2026-06-24",
+    "name": "매드업",
+    "competition": 0.0,
+    "predicted": 58,
+    "ratio": 1.59,
+    "score": 37.7,
+    "ttasang": 10,
+    "lockup": 30.86,
+    "float": 30.86,
+    "offer_price": 8000,
+    "actual": null
   }
 ]
