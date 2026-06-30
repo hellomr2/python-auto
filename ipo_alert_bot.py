@@ -493,12 +493,251 @@ def parse_percent_candidates(text):
     return values
 
 
+def parse_number_value(text):
+    text = normalize_text(str(text))
+
+    if not text or text in ["-", "N/A", "NA"]:
+        return None
+
+    negative = text.startswith("-")
+    match = re.search(r"-?\d+(?:,\d{3})*(?:\.\d+)?|-?\d+(?:\.\d+)?", text)
+    if not match:
+        return None
+
+    raw = match.group(0).replace(",", "")
+
+    try:
+        value = float(raw)
+    except ValueError:
+        return None
+
+    if value.is_integer():
+        value = int(value)
+
+    return value
+
+
+def parse_percent_value(text):
+    value = parse_number_value(text)
+    if value is None:
+        return None
+    return round(float(value), 2)
+
+
+def to_million_won(value):
+    if value is None:
+        return None
+    return int(round(float(value) / 1_000_000))
+
+
+def table_rows(table):
+    rows = []
+    for tr in table.find_all("tr"):
+        cells = [c.get_text(" ", strip=True) for c in tr.find_all(["td", "th"])]
+        cells = [re.sub(r"\s+", " ", c).strip() for c in cells]
+        if cells:
+            rows.append(cells)
+    return rows
+
+
+def pick_financial_column(header_cells):
+    """
+    38 상세 페이지는 2026년 1분기, 2025년, 2024년처럼 열이 섞인다.
+    알림에는 분기보다 최근 온기 실적을 우선 사용한다.
+    """
+    normalized = [normalize_text(x) for x in header_cells]
+
+    for i, h in enumerate(normalized):
+        if "2025" in h and "1분기" not in h:
+            return i
+
+    for i, h in enumerate(normalized):
+        if re.search(r"20\d{2}", h) and "1분기" not in h:
+            return i
+
+    for i, h in enumerate(normalized):
+        if re.search(r"20\d{2}", h):
+            return i
+
+    return 1 if len(header_cells) > 1 else None
+
+
+def extract_value_from_labeled_rows(rows, label, prefer_col=None, percent=False, million_won=False):
+    label_key = normalize_text(label)
+
+    for cells in rows:
+        if not cells:
+            continue
+
+        label_idx = None
+        for i, cell in enumerate(cells[:3]):
+            if normalize_text(cell) == label_key or label_key in normalize_text(cell):
+                label_idx = i
+                break
+
+        if label_idx is None:
+            continue
+
+        candidates = []
+        # header 기준 prefer_col은 보통 '구분' 다음부터 값 열이 시작한다.
+        if prefer_col is not None:
+            value_idx = label_idx + prefer_col
+            if value_idx < len(cells):
+                candidates.append(cells[value_idx])
+
+        candidates.extend(cells[label_idx + 1:])
+
+        for cell in candidates:
+            if percent:
+                value = parse_percent_value(cell)
+            else:
+                value = parse_number_value(cell)
+                if million_won:
+                    value = to_million_won(value)
+
+            if value is not None:
+                return value
+
+    return None
+
+
+def classify_financial_grade(info):
+    score = financial_score(info)
+
+    if score >= 45:
+        return "우량"
+    if score >= 25:
+        return "양호"
+    if score >= 5:
+        return "보통"
+    if score < 0:
+        return "주의"
+    return "미평가"
+
+
+def parse_financials_from_detail_soup(soup):
+    info = {
+        "sales": None,
+        "operating_profit": None,
+        "net_income": None,
+        "assets": None,
+        "liabilities": None,
+        "equity": None,
+        "debt_ratio": None,
+        "roe": None,
+        "per": None,
+        "financial_year": None,
+        "financial_grade": "미평가",
+    }
+
+    for table in soup.find_all("table"):
+        rows = table_rows(table)
+        if not rows:
+            continue
+
+        text = table.get_text(" ", strip=True)
+        key = normalize_text(text)
+
+        # 공모분석 본문 내 재무적 성장성: 매출/영업이익/순이익
+        if "재무적성장성" in key and "영업이익" in key and "당기순이익" in key:
+            header = next((r for r in rows if r and normalize_text(r[0]) == "구분"), None)
+            col = pick_financial_column(header) if header else None
+
+            if header and col is not None and col < len(header):
+                year_match = re.search(r"20\d{2}", header[col])
+                if year_match:
+                    info["financial_year"] = year_match.group(0)
+
+            sales = extract_value_from_labeled_rows(rows, "매출액", col)
+            operating_profit = extract_value_from_labeled_rows(rows, "영업이익", col)
+            net_income = extract_value_from_labeled_rows(rows, "당기순이익", col)
+
+            if sales is not None:
+                info["sales"] = sales
+            if operating_profit is not None:
+                info["operating_profit"] = operating_profit
+            if net_income is not None:
+                info["net_income"] = net_income
+
+        # 재무제표 요약: 자산/부채/자본총계. 원 단위로 들어오므로 백만원 변환.
+        if "자산총계" in key and "부채총계" in key and "자본총계" in key and "동종업체" not in key and "유사기업" not in key:
+            header = next((r for r in rows if r and normalize_text(r[0]) in ["구분", "구분"] and any("2025" in x for x in r)), None)
+            col = pick_financial_column(header) if header else None
+
+            assets = extract_value_from_labeled_rows(rows, "자산총계", col, million_won=True)
+            liabilities = extract_value_from_labeled_rows(rows, "부채총계", col, million_won=True)
+            equity = extract_value_from_labeled_rows(rows, "자본총계", col, million_won=True)
+
+            if assets is not None:
+                info["assets"] = assets
+            if liabilities is not None:
+                info["liabilities"] = liabilities
+            if equity is not None:
+                info["equity"] = equity
+
+        # 재무비율/재무적 안정성: 부채비율, ROE
+        if "부채비율" in key or "자기자본수익률" in key:
+            header = next((r for r in rows if r and normalize_text(r[0]) in ["구분", "구분"] and any("2025" in x for x in r)), None)
+            col = pick_financial_column(header) if header else None
+
+            debt_ratio = extract_value_from_labeled_rows(rows, "부채비율", col, percent=True)
+            roe = extract_value_from_labeled_rows(rows, "자기자본수익률", col, percent=True)
+
+            if debt_ratio is not None:
+                info["debt_ratio"] = debt_ratio
+            if roe is not None:
+                info["roe"] = roe
+
+        # 주가지표: PER
+        if "주가지표" in key or "PER" in key:
+            header = next((r for r in rows if r and any("2025" in x for x in r)), None)
+            col = pick_financial_column(header) if header else None
+            for cells in rows:
+                if not cells or "PER" not in cells[0]:
+                    continue
+
+                candidates = []
+                if col is not None and col < len(cells):
+                    candidates.append(cells[col])
+                candidates.extend(cells[1:])
+
+                for cell in candidates:
+                    value = parse_number_value(cell)
+                    if value is not None:
+                        info["per"] = float(value)
+                        break
+
+                if info["per"] is not None:
+                    break
+
+    info["financial_grade"] = classify_financial_grade(info)
+    return info
+
+
 def parse_38_detail(url):
+    empty_financials = {
+        "sales": None,
+        "operating_profit": None,
+        "net_income": None,
+        "assets": None,
+        "liabilities": None,
+        "equity": None,
+        "debt_ratio": None,
+        "roe": None,
+        "per": None,
+        "financial_year": None,
+        "financial_grade": "미평가",
+    }
+
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
 
         res = requests.get(url, headers=headers, timeout=10)
         res.raise_for_status()
+
+        # 38커뮤니케이션 상세 페이지는 euc-kr인 경우가 많다.
+        if not res.encoding or res.encoding.lower() in ["iso-8859-1", "ascii"]:
+            res.encoding = res.apparent_encoding or "euc-kr"
 
         soup = BeautifulSoup(res.text, "html.parser")
 
@@ -565,30 +804,20 @@ def parse_38_detail(url):
         if lockup is None:
             lockup = 0.0
 
+        financials = parse_financials_from_detail_soup(soup)
+
         return {
             "float": float_ratio,
-            "lockup": lockup
+            "lockup": lockup,
+            **financials,
         }
 
     except Exception as e:
         logging.error(f"상세페이지 실패: {url} | {e}")
         return {
-            "float":50.0,
-            "lockup":0.0,
-
-            "sales":None,
-            "operating_profit":None,
-            "net_income":None,
-
-            "assets":None,
-            "liabilities":None,
-            "equity":None,
-
-            "debt_ratio":None,
-            "roe":None,
-            "per":None,
-
-            "financial_grade":"미평가"
+            "float": 50.0,
+            "lockup": 0.0,
+            **empty_financials,
         }
 
 
@@ -817,11 +1046,6 @@ def analyze_ipo(name, info):
 
     finance = financial_score(info)
 
-    if finance >= 40:
-        ratio += 0.10
-    elif finance <= 0:
-        ratio -= 0.10
-
     comp = info.get("competition", 0)
     lock = info.get("lockup", 0)
     float_ratio = info.get("float", 50)
@@ -840,6 +1064,11 @@ def analyze_ipo(name, info):
     comp_adj = min(math.log10(comp + 1) * 0.35, 0.6)
 
     ratio = base + lock_adj + comp_adj
+
+    if finance >= 40:
+        ratio += 0.10
+    elif finance <= 0:
+        ratio -= 0.10
 
     if float_ratio > 50:
         ratio -= 0.25
@@ -973,7 +1202,8 @@ def format_company_block(item):
     else:
         line += "- 공모가: 데이터 없음\n"
 
-    line += "\n📊 재무\n"
+    year_label = f"({info['financial_year']}년)" if info.get("financial_year") else ""
+    line += f"\n📊 재무 {year_label}\n"
 
     if info["sales"]:
         line += f"- 매출 : {info['sales']:,}백만원\n"
@@ -990,11 +1220,23 @@ def format_company_block(item):
 
         line += f"- 순이익 : {info['net_income']:,} {icon}\n"
 
+    if info.get("assets") is not None:
+        line += f"- 자산총계 : {info['assets']:,}백만원\n"
+
+    if info.get("liabilities") is not None:
+        line += f"- 부채총계 : {info['liabilities']:,}백만원\n"
+
+    if info.get("equity") is not None:
+        line += f"- 자본총계 : {info['equity']:,}백만원\n"
+
     if info["debt_ratio"] is not None:
         line += f"- 부채비율 : {info['debt_ratio']}%\n"
 
     if info["roe"] is not None:
         line += f"- ROE : {info['roe']}%\n"
+
+    if info.get("per") is not None:
+        line += f"- PER : {info['per']}배\n"
 
     line += f"- 기업평가 : {info['financial_grade']}\n\n"
 
@@ -1236,3 +1478,26 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ===== Added: Financial scoring =====
+import re
+def calculate_financial_score(fin):
+    score=0
+    comments=[]
+    def num(v):
+        if v is None: return None
+        m=re.search(r"-?\d+(?:\.\d+)?", str(v).replace(",",""))
+        return float(m.group()) if m else None
+    op=num(fin.get("operating_profit"))
+    net=num(fin.get("net_income"))
+    roe=num(fin.get("roe"))
+    debt=num(fin.get("debt_ratio"))
+    if op and op>0: score+=10; comments.append("영업이익 흑자")
+    if net and net>0: score+=5; comments.append("순이익 흑자")
+    if roe is not None:
+        score += 10 if roe>=20 else 8 if roe>=15 else 5 if roe>=10 else 0
+    if debt is not None:
+        score += 10 if debt<=100 else 7 if debt<=150 else 4 if debt<=200 else 0
+    grade="A" if score>=30 else "B" if score>=22 else "C" if score>=15 else "D"
+    return {"financial_score":score,"financial_grade":grade,"comments":comments}
