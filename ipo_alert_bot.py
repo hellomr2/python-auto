@@ -32,11 +32,27 @@ DEFAULT_38_INFO = {
     "competition": 0.0,
     "float": 50.0,
     "lockup": 0.0,
-    "offer_price": 0,
-    "band_low": 0,
-    "band_high": 0,
-    "price_position": "미확인",
-    "brokers": []
+
+    "offer_price":0,
+    "band_low":0,
+    "band_high":0,
+    "price_position":"미확인",
+
+    "sales":None,
+    "operating_profit":None,
+    "net_income":None,
+
+    "assets":None,
+    "liabilities":None,
+    "equity":None,
+
+    "debt_ratio":None,
+    "roe":None,
+    "per":None,
+
+    "financial_grade":"미평가",
+
+    "brokers":[]
 }
 
 DEFAULT_WEIGHTS = {
@@ -557,8 +573,22 @@ def parse_38_detail(url):
     except Exception as e:
         logging.error(f"상세페이지 실패: {url} | {e}")
         return {
-            "float": 50.0,
-            "lockup": 0.0
+            "float":50.0,
+            "lockup":0.0,
+
+            "sales":None,
+            "operating_profit":None,
+            "net_income":None,
+
+            "assets":None,
+            "liabilities":None,
+            "equity":None,
+
+            "debt_ratio":None,
+            "roe":None,
+            "per":None,
+
+            "financial_grade":"미평가"
         }
 
 
@@ -637,15 +667,32 @@ def get_38_info(company, all_38):
         if detail_url:
             detail_info = parse_38_detail(detail_url)
 
-        result = {
-            "competition": competition,
-            "lockup": detail_info["lockup"],
-            "float": detail_info["float"],
-            "offer_price": price_info["offer_price"],
-            "band_low": price_info["band_low"],
-            "band_high": price_info["band_high"],
-            "price_position": price_info["price_position"],
-            "brokers": brokers
+        result={
+            "competition":competition,
+
+            "lockup":detail_info["lockup"],
+            "float":detail_info["float"],
+
+            "sales":detail_info["sales"],
+            "operating_profit":detail_info["operating_profit"],
+            "net_income":detail_info["net_income"],
+
+            "assets":detail_info["assets"],
+            "liabilities":detail_info["liabilities"],
+            "equity":detail_info["equity"],
+
+            "debt_ratio":detail_info["debt_ratio"],
+            "roe":detail_info["roe"],
+            "per":detail_info["per"],
+
+            "financial_grade":detail_info["financial_grade"],
+
+            "offer_price":price_info["offer_price"],
+            "band_low":price_info["band_low"],
+            "band_high":price_info["band_high"],
+            "price_position":price_info["price_position"],
+
+            "brokers":brokers
         }
 
         cache_38[company] = result
@@ -706,7 +753,53 @@ def calc_score(info):
     if comp < 100 and float_ratio > 50:
         score -= 10
 
-    return round(score, 1)
+    score += financial_score(info) * 0.3
+
+    return round(score,1)
+
+
+def financial_score(info):
+
+    score=0
+
+    sales=info.get("sales")
+    op=info.get("operating_profit")
+    net=info.get("net_income")
+    debt=info.get("debt_ratio")
+    roe=info.get("roe")
+
+    if sales and sales>0:
+        score+=10
+
+    if op is not None:
+        if op>0:
+            score+=15
+        else:
+            score-=10
+
+    if net is not None:
+        if net>0:
+            score+=15
+        else:
+            score-=10
+
+    if debt is not None:
+        if debt<50:
+            score+=10
+        elif debt<100:
+            score+=5
+        elif debt>200:
+            score-=10
+
+    if roe is not None:
+        if roe>=20:
+            score+=10
+        elif roe>=10:
+            score+=5
+        elif roe<0:
+            score-=10
+
+    return score
 
 
 def analyze_ipo(name, info):
@@ -721,6 +814,13 @@ def analyze_ipo(name, info):
         }
 
     score = calc_score(info)
+
+    finance = financial_score(info)
+
+    if finance >= 40:
+        ratio += 0.10
+    elif finance <= 0:
+        ratio -= 0.10
 
     comp = info.get("competition", 0)
     lock = info.get("lockup", 0)
@@ -873,6 +973,31 @@ def format_company_block(item):
     else:
         line += "- 공모가: 데이터 없음\n"
 
+    line += "\n📊 재무\n"
+
+    if info["sales"]:
+        line += f"- 매출 : {info['sales']:,}백만원\n"
+
+    if info["operating_profit"] is not None:
+
+        icon="🟢" if info["operating_profit"]>0 else "🔴"
+
+        line += f"- 영업이익 : {info['operating_profit']:,} {icon}\n"
+
+    if info["net_income"] is not None:
+
+        icon="🟢" if info["net_income"]>0 else "🔴"
+
+        line += f"- 순이익 : {info['net_income']:,} {icon}\n"
+
+    if info["debt_ratio"] is not None:
+        line += f"- 부채비율 : {info['debt_ratio']}%\n"
+
+    if info["roe"] is not None:
+        line += f"- ROE : {info['roe']}%\n"
+
+    line += f"- 기업평가 : {info['financial_grade']}\n\n"
+
     line += f"- 유통 {info['float']}% / 확약 {info['lockup']}%\n"
     line += f"- 예상 수익: +{result['expected_return']}% (x{result['open_ratio']})\n"
     line += f"- 따상 확률: {result['ttasang']}%\n"
@@ -1021,6 +1146,12 @@ def build_message(today_data, all_38):
         reverse=True
     )[:3]
 
+    financial_top3 = sorted(
+        normal_items,
+        key=lambda x: financial_score(x["info"]),
+        reverse=True
+    )[:3]
+
     if top3_items:
         msg += "🏆 경쟁률 TOP3\n"
         msg += "===============\n"
@@ -1029,6 +1160,18 @@ def build_message(today_data, all_38):
                 f"{idx}. {item['name']} "
                 f"({item['info']['competition']}:1, "
                 f"따상 {item['result']['ttasang']}%)\n"
+            )
+        msg += "\n"
+
+    if financial_top3:
+        msg += "🏢 재무 우량 TOP3\n"
+        msg += "===============\n"
+
+        for idx, item in enumerate(financial_top3, start=1):
+            msg += (
+                f"{idx}. {item['name']} "
+                f"(재무점수 {financial_score(item['info'])}, "
+                f"{item['info']['financial_grade']})\n"
             )
         msg += "\n"
 
