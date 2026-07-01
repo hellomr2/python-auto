@@ -388,5 +388,18 @@
     "float": 33.19,
     "offer_price": 10000,
     "actual": null
+  },
+  {
+    "date": "2026-07-01",
+    "name": "레메디",
+    "competition": 0.0,
+    "predicted": 74,
+    "ratio": 1.75,
+    "score": 42.3,
+    "ttasang": 10,
+    "lockup": 41.03,
+    "float": 41.03,
+    "offer_price": 20700,
+    "actual": null
   }
 ]
