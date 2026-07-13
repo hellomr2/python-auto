@@ -414,5 +414,18 @@
     "float": 41.03,
     "offer_price": 20700,
     "actual": null
+  },
+  {
+    "date": "2026-07-14",
+    "name": "에이치엘지노믹스",
+    "competition": 0.0,
+    "predicted": 69,
+    "ratio": 1.7,
+    "score": 54.8,
+    "ttasang": 10,
+    "lockup": 33.04,
+    "float": 33.04,
+    "offer_price": 21500,
+    "actual": null
   }
 ]
