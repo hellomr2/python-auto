@@ -427,5 +427,18 @@
     "float": 33.04,
     "offer_price": 21500,
     "actual": null
+  },
+  {
+    "date": "2026-07-30",
+    "name": "인제니아테라퓨틱스",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 6.4,
+    "ttasang": 10,
+    "lockup": 25.6,
+    "float": 25.6,
+    "offer_price": 12000,
+    "actual": null
   }
 ]
