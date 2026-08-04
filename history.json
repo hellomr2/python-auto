@@ -466,5 +466,31 @@
     "float": 36.93,
     "offer_price": 7000,
     "actual": null
+  },
+  {
+    "date": "2026-08-04",
+    "name": "케이앤에스아이앤씨",
+    "competition": 0.0,
+    "predicted": 68,
+    "ratio": 1.68,
+    "score": 51.0,
+    "ttasang": 10,
+    "lockup": 30.0,
+    "float": 30.0,
+    "offer_price": 11000,
+    "actual": null
+  },
+  {
+    "date": "2026-08-04",
+    "name": "딜리셔스",
+    "competition": 0.0,
+    "predicted": 62,
+    "ratio": 1.62,
+    "score": 49.7,
+    "ttasang": 10,
+    "lockup": 36.93,
+    "float": 36.93,
+    "offer_price": 7000,
+    "actual": null
   }
 ]
