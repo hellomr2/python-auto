@@ -505,5 +505,18 @@
     "float": 30.0,
     "offer_price": 11000,
     "actual": null
+  },
+  {
+    "date": "2026-08-11",
+    "name": "기도산업",
+    "competition": 0.0,
+    "predicted": 69,
+    "ratio": 1.7,
+    "score": 53.1,
+    "ttasang": 10,
+    "lockup": 32.5,
+    "float": 32.5,
+    "offer_price": 28400,
+    "actual": null
   }
 ]
