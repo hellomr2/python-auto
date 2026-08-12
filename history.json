@@ -557,5 +557,31 @@
     "float": 32.5,
     "offer_price": 28400,
     "actual": null
+  },
+  {
+    "date": "2026-08-13",
+    "name": "니어스랩",
+    "competition": 0.0,
+    "predicted": 72,
+    "ratio": 1.72,
+    "score": 54.3,
+    "ttasang": 10,
+    "lockup": 37.19,
+    "float": 37.19,
+    "offer_price": 41200,
+    "actual": null
+  },
+  {
+    "date": "2026-08-13",
+    "name": "해치텍",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 3.1,
+    "ttasang": 10,
+    "lockup": 38.42,
+    "float": 38.42,
+    "offer_price": 23000,
+    "actual": null
   }
 ]
