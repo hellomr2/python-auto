@@ -583,5 +583,18 @@
     "float": 38.42,
     "offer_price": 23000,
     "actual": null
+  },
+  {
+    "date": "2026-08-26",
+    "name": "스카이랩스",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 10.8,
+    "ttasang": 10,
+    "lockup": 27.29,
+    "float": 27.29,
+    "offer_price": 10000,
+    "actual": null
   }
 ]
