@@ -609,5 +609,18 @@
     "float": 27.29,
     "offer_price": 10000,
     "actual": null
+  },
+  {
+    "date": "2026-09-01",
+    "name": "NH스팩34호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
