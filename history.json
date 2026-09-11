@@ -674,5 +674,44 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-09-11",
+    "name": "네오사피엔스",
+    "competition": 0.0,
+    "predicted": 7,
+    "ratio": 1.07,
+    "score": 18.7,
+    "ttasang": 10,
+    "lockup": 28.66,
+    "float": 28.66,
+    "offer_price": 10000,
+    "actual": null
+  },
+  {
+    "date": "2026-09-11",
+    "name": "KB스팩34호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
+  },
+  {
+    "date": "2026-09-11",
+    "name": "한국스팩17호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
