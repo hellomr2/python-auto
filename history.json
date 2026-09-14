@@ -713,5 +713,18 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-09-14",
+    "name": "와이즈플래닛컴퍼니",
+    "competition": 0.0,
+    "predicted": 62,
+    "ratio": 1.63,
+    "score": 40.3,
+    "ttasang": 10,
+    "lockup": 21.12,
+    "float": 21.12,
+    "offer_price": 12000,
+    "actual": null
   }
 ]
