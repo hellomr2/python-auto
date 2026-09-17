@@ -791,5 +791,44 @@
     "float": 30.07,
     "offer_price": 18000,
     "actual": null
+  },
+  {
+    "date": "2026-09-17",
+    "name": "브릴스",
+    "competition": 0.0,
+    "predicted": 100,
+    "ratio": 2.0,
+    "score": 43.5,
+    "ttasang": 10,
+    "lockup": 100.0,
+    "float": 100.0,
+    "offer_price": 19500,
+    "actual": null
+  },
+  {
+    "date": "2026-09-17",
+    "name": "덕산넵코어스(구.넵코어스)",
+    "competition": 0.0,
+    "predicted": 97,
+    "ratio": 1.98,
+    "score": 44.0,
+    "ttasang": 10,
+    "lockup": 95.97,
+    "float": 95.97,
+    "offer_price": 14600,
+    "actual": null
+  },
+  {
+    "date": "2026-09-17",
+    "name": "글로벌테크놀로지",
+    "competition": 0.0,
+    "predicted": 3,
+    "ratio": 1.03,
+    "score": 18.6,
+    "ttasang": 10,
+    "lockup": 22.26,
+    "float": 22.26,
+    "offer_price": 10000,
+    "actual": null
   }
 ]
