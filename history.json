@@ -830,5 +830,18 @@
     "float": 22.26,
     "offer_price": 10000,
     "actual": null
+  },
+  {
+    "date": "2026-09-18",
+    "name": "브릴스",
+    "competition": 0.0,
+    "predicted": 100,
+    "ratio": 2.0,
+    "score": 43.5,
+    "ttasang": 10,
+    "lockup": 100.0,
+    "float": 100.0,
+    "offer_price": 19500,
+    "actual": null
   }
 ]
