@@ -921,5 +921,18 @@
     "float": 58.44,
     "offer_price": 23500,
     "actual": null
+  },
+  {
+    "date": "2026-10-06",
+    "name": "진코스텍",
+    "competition": 0.0,
+    "predicted": 60,
+    "ratio": 1.6,
+    "score": 49.6,
+    "ttasang": 10,
+    "lockup": 58.44,
+    "float": 58.44,
+    "offer_price": 23500,
+    "actual": null
   }
 ]
