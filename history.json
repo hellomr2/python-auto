@@ -934,5 +934,18 @@
     "float": 58.44,
     "offer_price": 23500,
     "actual": null
+  },
+  {
+    "date": "2026-10-07",
+    "name": "엘리스그룹",
+    "competition": 0.0,
+    "predicted": 62,
+    "ratio": 1.62,
+    "score": 41.7,
+    "ttasang": 10,
+    "lockup": 20.81,
+    "float": 20.81,
+    "offer_price": 90500,
+    "actual": null
   }
 ]
