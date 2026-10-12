@@ -960,5 +960,18 @@
     "float": 20.81,
     "offer_price": 90500,
     "actual": null
+  },
+  {
+    "date": "2026-10-12",
+    "name": "엠에스바이오",
+    "competition": 0.0,
+    "predicted": 63,
+    "ratio": 1.64,
+    "score": 43.8,
+    "ttasang": 10,
+    "lockup": 23.33,
+    "float": 23.33,
+    "offer_price": 7800,
+    "actual": null
   }
 ]
