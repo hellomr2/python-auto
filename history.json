@@ -999,5 +999,18 @@
     "float": 23.33,
     "offer_price": 7800,
     "actual": null
+  },
+  {
+    "date": "2026-10-14",
+    "name": "디티에스(구.동양티에스)",
+    "competition": 0.0,
+    "predicted": 74,
+    "ratio": 1.74,
+    "score": 53.8,
+    "ttasang": 10,
+    "lockup": 15.15,
+    "float": 15.15,
+    "offer_price": 18500,
+    "actual": null
   }
 ]
