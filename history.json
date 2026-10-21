@@ -1077,5 +1077,57 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-10-21",
+    "name": "인텔리빅스",
+    "competition": 0.0,
+    "predicted": 64,
+    "ratio": 1.64,
+    "score": 41.0,
+    "ttasang": 10,
+    "lockup": 23.95,
+    "float": 23.95,
+    "offer_price": 9000,
+    "actual": null
+  },
+  {
+    "date": "2026-10-21",
+    "name": "티앤이코리아",
+    "competition": 0.0,
+    "predicted": 68,
+    "ratio": 1.69,
+    "score": 49.8,
+    "ttasang": 10,
+    "lockup": 31.29,
+    "float": 31.29,
+    "offer_price": 15300,
+    "actual": null
+  },
+  {
+    "date": "2026-10-21",
+    "name": "크리에이츠",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 22.9,
+    "ttasang": 10,
+    "lockup": 39.47,
+    "float": 39.47,
+    "offer_price": 15000,
+    "actual": null
+  },
+  {
+    "date": "2026-10-21",
+    "name": "한화플러스스팩6호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
