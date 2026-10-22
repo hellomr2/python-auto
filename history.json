@@ -1129,5 +1129,57 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-10-22",
+    "name": "래블업",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 14.4,
+    "ttasang": 10,
+    "lockup": 35.57,
+    "float": 35.57,
+    "offer_price": 19000,
+    "actual": null
+  },
+  {
+    "date": "2026-10-22",
+    "name": "이에스티",
+    "competition": 0.0,
+    "predicted": 62,
+    "ratio": 1.63,
+    "score": 42.4,
+    "ttasang": 10,
+    "lockup": 37.7,
+    "float": 37.7,
+    "offer_price": 12400,
+    "actual": null
+  },
+  {
+    "date": "2026-10-22",
+    "name": "영광(구.영광공작소)",
+    "competition": 0.0,
+    "predicted": 69,
+    "ratio": 1.69,
+    "score": 49.9,
+    "ttasang": 10,
+    "lockup": 31.75,
+    "float": 31.75,
+    "offer_price": 17000,
+    "actual": null
+  },
+  {
+    "date": "2026-10-22",
+    "name": "인텔리빅스",
+    "competition": 0.0,
+    "predicted": 64,
+    "ratio": 1.64,
+    "score": 41.0,
+    "ttasang": 10,
+    "lockup": 23.95,
+    "float": 23.95,
+    "offer_price": 9000,
+    "actual": null
   }
 ]
