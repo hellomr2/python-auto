@@ -1220,5 +1220,18 @@
     "float": 31.75,
     "offer_price": 17000,
     "actual": null
+  },
+  {
+    "date": "2026-10-26",
+    "name": "아이엠스팩1호",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 0,
+    "ttasang": 0,
+    "lockup": 0.0,
+    "float": 50.0,
+    "offer_price": 2000,
+    "actual": null
   }
 ]
