@@ -1246,5 +1246,31 @@
     "float": 50.0,
     "offer_price": 2000,
     "actual": null
+  },
+  {
+    "date": "2026-11-02",
+    "name": "바로팜",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": -0.4,
+    "ttasang": 10,
+    "lockup": 30.38,
+    "float": 30.38,
+    "offer_price": 16400,
+    "actual": null
+  },
+  {
+    "date": "2026-11-02",
+    "name": "동원파츠",
+    "competition": 0.0,
+    "predicted": 57,
+    "ratio": 1.58,
+    "score": 37.9,
+    "ttasang": 10,
+    "lockup": 29.47,
+    "float": 29.47,
+    "offer_price": 26500,
+    "actual": null
   }
 ]
