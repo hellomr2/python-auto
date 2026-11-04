@@ -1311,5 +1311,31 @@
     "float": 29.47,
     "offer_price": 26500,
     "actual": null
+  },
+  {
+    "date": "2026-11-04",
+    "name": "영광와이케이엠씨",
+    "competition": 0.0,
+    "predicted": 70,
+    "ratio": 1.71,
+    "score": 50.7,
+    "ttasang": 10,
+    "lockup": 34.86,
+    "float": 34.86,
+    "offer_price": 11000,
+    "actual": null
+  },
+  {
+    "date": "2026-11-04",
+    "name": "넥스아이",
+    "competition": 0.0,
+    "predicted": 12,
+    "ratio": 1.12,
+    "score": 32.3,
+    "ttasang": 10,
+    "lockup": 37.03,
+    "float": 37.03,
+    "offer_price": 8000,
+    "actual": null
   }
 ]
