@@ -1389,5 +1389,18 @@
     "float": 1.0,
     "offer_price": 12000,
     "actual": null
+  },
+  {
+    "date": "2026-11-07",
+    "name": "에이엘로봇",
+    "competition": 0.0,
+    "predicted": 58,
+    "ratio": 1.59,
+    "score": 18.2,
+    "ttasang": 10,
+    "lockup": 64.99,
+    "float": 64.99,
+    "offer_price": 17600,
+    "actual": null
   }
 ]
