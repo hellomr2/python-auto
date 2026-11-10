@@ -1428,5 +1428,18 @@
     "float": 64.99,
     "offer_price": 17600,
     "actual": null
+  },
+  {
+    "date": "2026-11-10",
+    "name": "하나에어로다이내믹스",
+    "competition": 0.0,
+    "predicted": 48,
+    "ratio": 1.48,
+    "score": 36.2,
+    "ttasang": 10,
+    "lockup": 30.83,
+    "float": 30.83,
+    "offer_price": 5700,
+    "actual": null
   }
 ]
