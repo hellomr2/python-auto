@@ -1454,5 +1454,18 @@
     "float": 30.83,
     "offer_price": 5700,
     "actual": null
+  },
+  {
+    "date": "2026-11-12",
+    "name": "엠비디",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": -15.6,
+    "ttasang": 10,
+    "lockup": 9.69,
+    "float": 50.0,
+    "offer_price": 7000,
+    "actual": null
   }
 ]
