@@ -1480,5 +1480,18 @@
     "float": 34.01,
     "offer_price": 7000,
     "actual": null
+  },
+  {
+    "date": "2026-11-18",
+    "name": "유캐스트",
+    "competition": 0.0,
+    "predicted": 0,
+    "ratio": 1.0,
+    "score": 22.2,
+    "ttasang": 10,
+    "lockup": 36.81,
+    "float": 36.81,
+    "offer_price": 19000,
+    "actual": null
   }
 ]
